@@ -1,0 +1,29 @@
+{
+  "name": "nota-reader",
+  "version": "0.0.1",
+  "description": "��#\u0000 \u0000n\u0000o\u0000t\u0000a\u0000-\u0000r\u0000e\u0000a\u0000d\u0000e\u0000r\u0000\r\u0000 \u0000",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielcarneiro97/nota-reader.git"
+  },
+  "author": "Gabriel Carneiro",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gabrielcarneiro97/nota-reader/issues"
+  },
+  "homepage": "https://github.com/gabrielcarneiro97/nota-reader#readme",
+  "dependencies": {
+    "electron": "^1.6.11",
+    "hover.css": "^2.2.0",
+    "materialize-css": "^0.99.0",
+    "pdfmake": "^0.1.31",
+    "xml2js": "^0.4.17"
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^1.4.13"
+  }
+}
