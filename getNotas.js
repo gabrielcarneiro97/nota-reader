@@ -166,13 +166,15 @@ var isXml = filename => {
   return filename.endsWith('.xml');
 }
 
-var toObjs = (dirname, callback) => {
-
-  let prom = new Promise(resolve => {
-
-  });
+/* @func readDir -> lê um diretório e converte todos os arquivos .xml no diretório em objetos.
+*   @param dirname -> é o nome do diretório.
+*   @param callback -> função callback que tem como @param arr que contém um array com todos os objetos.
+*/
+var readDir = (dirname, callback) => {
 
   fs.readdir(dirname, (err, files) => {
+
+    if(!dirname.endsWith('/')) dirname += '/';
 
     files = files.filter(isXml);
 
@@ -200,5 +202,5 @@ var toObjs = (dirname, callback) => {
 
 module.exports = {
   simplify: simplify,
-  toObj: toObjs
+  readDir: readDir
 }

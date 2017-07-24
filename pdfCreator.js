@@ -145,7 +145,10 @@ let generatePdf = (el, callback) => {
 
 
 let readDir = dir => {
-  notas.toObj(dir, objs => {
+
+  if(!dir.endsWith('/')) dir += '/';
+
+  notas.readDir(dir, objs => {
     objs.forEach(el => {
 
       generatePdf(el, pdfDoc => {
@@ -162,3 +165,5 @@ module.exports = {
   generatePdf: generatePdf,
   readDir: readDir
 }
+
+readDir('./notas');
