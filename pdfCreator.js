@@ -165,5 +165,3 @@ module.exports = {
   generatePdf: generatePdf,
   readDir: readDir
 }
-
-readDir('./notas');
