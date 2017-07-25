@@ -22,7 +22,7 @@ var createWindow = () => {
   }));
 
 
-  win.webContents.openDevTools();
+  win.webContents.openDevTools({detach: true});
 
   win.on('closed', () => {
     win = null;

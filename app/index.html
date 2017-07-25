@@ -8,7 +8,7 @@
     <link href="../node_modules/hover.css/css/hover-min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script>window.$ = window.jQuery = require('../node_modules/jquery/dist/jquery.min.js');</script>
     <script src="../node_modules/hammerjs/hammer.min.js"></script>
     <!-- Compiled and minified JavaScript -->
     <script src="../node_modules/materialize-css/dist/js/materialize.min.js"></script>
@@ -16,15 +16,16 @@
   </head>
   <body>
     <div class="row" style="height: 250px">
-      <div class="col s4 hvr-back-pulse" style="height: 250px">
+      <div class="col s4 hvr-back-pulse" style="height: 250px" id="teste">
+        <p>TESTE</p>
+      </div>
+      <div class="col s4 grey lighten-2 hvr-back-pulse" style="height: 250px">
 
       </div>
-      <div class="col s4 grey lighten-2 menu-btn" style="height: 250px">
-
-      </div>
-      <div class="col s4 grey lighten-2 menu-btn" style="height: 250px">
+      <div class="col s4 grey lighten-2 hvr-back-pulse" style="height: 250px">
 
       </div>
     </div>
+    <script src="app.js"></script>
   </body>
 </html>

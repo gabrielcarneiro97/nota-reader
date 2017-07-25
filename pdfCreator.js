@@ -21,13 +21,18 @@ let generatePdf = (el, callback) => {
 
   let diaComp = el.comp.getDate() < 10 ? "0" + el.comp.getDate() : el.comp.getDate();
   let mesComp = el.comp.getMonth()+1 < 10 ? "0" + (el.comp.getMonth()+1) : el.comp.getMonth()+1;
-
   let dataComp = `${diaComp}/${mesComp}/${el.comp.getFullYear()}`;
+
+  let diaSub = el.cancelada.data.getDate() < 10 ? "0" + el.cancelada.data.getDate() : el.cancelada.data.getDate();
+  let mesSub = el.cancelada.data.getMonth()+1 < 10 ? "0" + (el.cancelada.data.getMonth()+1) : el.cancelada.data.getMonth()+1;
+  let dataSub = `${diaSub}/${mesSub}/${el.cancelada.data.getFullYear()}`;
+
   let retencoesFederais = parseFloat(el.valores.retencoes.pis) + parseFloat(el.valores.retencoes.cofins) +  parseFloat(el.valores.retencoes.inss) + parseFloat(el.valores.retencoes.ir) + parseFloat(el.valores.retencoes.csll);
 
   let aliquota = el.valores.iss.aliquota > 1 ? el.valores.iss.aliquota : el.valores.iss.aliquota * 100;
 
   let docDef = {
+    watermark: el.cancelada.is ? {text: 'CANCELADA', color: 'red'} : '',
     content: [
       { text: "NFS-e NOTA FISAL DE SERVIÇOS ELETRÔNICA\n", fontSize: 10, alignment: "center", marginBottom: 10, bold: true},
       { columns: [
@@ -136,6 +141,10 @@ let generatePdf = (el, callback) => {
         {text: `IR: R$ ${el.valores.retencoes.ir || 0}\t`},
       ], marginLeft: 15, fontSize: 8},
       {canvas: [{ type: 'line', x1: 0, y1: 5, x2: 595-2*40, y2: 5, lineWidth: 0.01 }], marginBottom: 7},
+      {text: el.cancelada ? [
+        {text: `Nota de substituição: ${el.cancelada.sub}\t`},
+        {text: `Data: ${dataSub}\t`},
+      ] : [], marginLeft: 15, fontSize: 10},
     ]
   }
 
@@ -165,3 +174,5 @@ module.exports = {
   generatePdf: generatePdf,
   readDir: readDir
 }
+
+readDir('./notas');

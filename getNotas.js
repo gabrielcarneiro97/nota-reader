@@ -72,12 +72,19 @@ var simplify = (data, callback) => {
     if(err) throw err;
 
     let el = elBruto.CompNfse.Nfse[0].InfNfse[0];
+    let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
+    let sub = cancel ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : false;
     let nota = {
+      cancelada: {
+        is: cancel ? true : false,
+        sub: sub,
+        data: new Date(cancel.Confirmacao[0].DataHora[0])
+      },
       num: el.Numero[0],
       codVer: el.CodigoVerificacao[0],
       emissao: new Date(el.DataEmissao[0]),
       comp: new Date(el.Competencia[0]),
-      desc: el.Servico[0].Discriminacao[0],
+      desc: el.Servico[0].Discriminacao[0].replace(/\|/g, '\n'),
       simples: el.OptanteSimplesNacional ? el.OptanteSimplesNacional[0] : 2,
       natureza: {
         desc: el.NaturezaOperacao ? defineNatureza(el.NaturezaOperacao[0]) : "",
@@ -174,13 +181,12 @@ var readDir = (dirname, callback) => {
 
   fs.readdir(dirname, (err, files) => {
 
+    if(err) throw err;
+
     if(!dirname.endsWith('/')) dirname += '/';
 
     files = files.filter(isXml);
 
-    if(err) {
-      throw err;
-    }
 
     let arr = [];
 
