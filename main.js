@@ -8,8 +8,8 @@ let win;
 
 var createWindow = () => {
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 300,
+    height: 300,
     resizable: false,
     backgroundColor: "#e0e0e0",
     autoHideMenuBar: true

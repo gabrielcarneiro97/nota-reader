@@ -73,12 +73,12 @@ var simplify = (data, callback) => {
 
     let el = elBruto.CompNfse.Nfse[0].InfNfse[0];
     let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
-    let sub = cancel ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : false;
+    let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : false;
     let nota = {
       cancelada: {
         is: cancel ? true : false,
         sub: sub,
-        data: new Date(cancel.Confirmacao[0].DataHora[0])
+        data: cancel ? new Date(cancel.Confirmacao[0].DataHora[0]) : false
       },
       num: el.Numero[0],
       codVer: el.CodigoVerificacao[0],
