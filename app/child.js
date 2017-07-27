@@ -1,8 +1,9 @@
 'use strict';
 const pdf = require('../pdfCreator.js');
 const timer = require('timers');
+const {ipcRenderer} = require('electron');
 
-process.on('message', m => {
+ipcRenderer.on('message', m => {
   let path = m;
   process.send({name: 'start'});
   pdf.readDir(path, status => {

@@ -3,10 +3,10 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 
 //recupera a lista de serviços armazenada em um JSON
-var listaServicos = JSON.parse(fs.readFileSync('listaServicos.json', 'utf8'));
+var listaServicos = JSON.parse(fs.readFileSync('./listaServicos.json', 'utf8'));
 
 //recupera a lista de todas as cidades do Brasil armazenadas em um JSON
-var listaCidades = JSON.parse(fs.readFileSync('listaCidades.json', 'utf8'));
+var listaCidades = JSON.parse(fs.readFileSync('./listaCidades.json', 'utf8'));
 
 /*
 * @func defineRegime -> recebe um código referente ao regime tributário e retorna uma String descritiva.
@@ -14,8 +14,7 @@ var listaCidades = JSON.parse(fs.readFileSync('listaCidades.json', 'utf8'));
 *   @return String contendo a descrição do regime.
 */
 var defineRegime = cod => {
-  cod |= 0;
-  cod = cod.toString();
+  cod = trataCod(cod);
   return (
     cod === "2" ? "Estimativa" :
     cod === "3" ? "Sociedade de Profissionais" :
@@ -30,8 +29,7 @@ var defineRegime = cod => {
 *   @return String contendo a descrição da natureza.
 */
 var defineNatureza = cod => {
-  cod |= 0;
-  cod = cod.toString();
+  cod = trataCod(cod);
   return (
     cod === "1" ? "Tributação no município" :
     cod === "2" ? "Tributação fora do município" :
@@ -45,24 +43,23 @@ var defineNatureza = cod => {
 *   @param cod -> código do serviço.
 *   @return String contendo a descrição do serviço.
 */
-var defineServico = cod => {
-  cod |= 0;
-  cod = cod.toString();
-  return listaServicos[cod];
-}
+var defineServico = cod => listaServicos[trataCod(cod)];
 
 /*
 * @func defineCidade -> recebe um código IBGE referente a cidade, consulta um objeto com todas as cidades e códigos listados e retorna uma String com o nome da cidade referente.
 *   @param cod -> código IBGE da cidade.
 *   @return String contendo o nome da cidade.
 */
-var defineCidade = cod => {
-  cod |= 0;
-  cod = cod.toString();
-  return listaCidades[cod];
-}
+var defineCidade = cod => listaCidades[trataCod(cod)];
 
-/* @func simplify -> recebe o NFS-e em XML e o converte em um objeto.
+/*
+* @func trataCod -> função responsável por tratar os códigos recebidos nas funções de definição.
+*   @return cod tratado.
+*/
+var trataCod = cod => (cod |= 0).toString();
+
+/*
+* @func simplify -> recebe o NFS-e em XML e o converte em um objeto.
 *   @param el -> XML contendo a nota.
 *   @param callback -> função de callback que tem como @param nota onde se encontra a nota objetificada.
 */
@@ -74,6 +71,7 @@ var simplify = (data, callback) => {
     let el = elBruto.CompNfse.Nfse[0].InfNfse[0];
     let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
     let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : false;
+
     let nota = {
       cancelada: {
         is: cancel ? true : false,
@@ -85,7 +83,7 @@ var simplify = (data, callback) => {
       emissao: new Date(el.DataEmissao[0]),
       comp: new Date(el.Competencia[0]),
       desc: el.Servico[0].Discriminacao[0].replace(/\|/g, '\n'),
-      simples: el.OptanteSimplesNacional ? el.OptanteSimplesNacional[0] : 2,
+      simples: el.OptanteSimplesNacional ? el.OptanteSimplesNacional[0] : "2",
       natureza: {
         desc: el.NaturezaOperacao ? defineNatureza(el.NaturezaOperacao[0]) : "",
         cod: el.NaturezaOperacao[0] || 0
@@ -159,21 +157,23 @@ var simplify = (data, callback) => {
         } : {}
       }
     }
+
     callback(nota);
+
   });
 
 
 }
 
-/* @func isXml -> testa se o nome do arquivo é referente a um xml.
+/*
+* @func isXml -> testa se o nome do arquivo é referente a um xml.
 *   @param filename -> nome do arquivo.
 *   @return true se o arquivo terminar com .xml.
 */
-var isXml = filename => {
-  return filename.endsWith('.xml');
-}
+var isXml = filename => filename.endsWith('.xml');
 
-/* @func readDir -> lê um diretório e converte todos os arquivos .xml no diretório em objetos.
+/*
+* @func readDir -> lê um diretório e converte todos os arquivos .xml no diretório em objetos.
 *   @param dirname -> é o nome do diretório.
 *   @param callback -> função callback que tem como @param arr que contém um array com todos os objetos.
 */
@@ -187,17 +187,19 @@ var readDir = (dirname, callback) => {
 
     files = files.filter(isXml);
 
-
     let arr = [];
 
     files.forEach((filename, id) => {
 
       if(filename.endsWith('.xml')){
+
         fs.readFile(dirname + filename, 'utf8', (err, data) => {
           simplify(data, nota => {
+
             arr.push(nota);
 
             if(arr.length === files.length) callback(arr);
+
           });
         });
       }

@@ -1,10 +1,11 @@
 'use strict';
 
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const url = require('url');
 
 let win;
+let backgroundWin;
 
 var createWindow = () => {
   win = new BrowserWindow({
@@ -15,8 +16,16 @@ var createWindow = () => {
     autoHideMenuBar: true
   });
 
+  backgroundWin = new BrowserWindow({show: false});
+
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'app/index.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
+
+  backgroundWin.loadURL(url.format({
+    pathname: path.join(__dirname, 'app/process.html'),
     protocol: 'file:',
     slashes: true
   }));
@@ -24,10 +33,25 @@ var createWindow = () => {
 
   win.webContents.openDevTools({detach: true});
 
+  backgroundWin.webContents.openDevTools({detach: true});
+
   win.on('closed', () => {
     win = null;
   });
+
+  ipcMain.on('toUi', (e, m) => {
+    win.webContents.send('message', m);
+  });
+
+
+  ipcMain.on('toProcessor', (e, m) => {
+    backgroundWin.webContents.send('message', m);
+  });
+
+
 }
+
+
 
 app.on('ready', createWindow);
 
