@@ -3,10 +3,10 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 
 //recupera a lista de serviços armazenada em um JSON
-var listaServicos = JSON.parse(fs.readFileSync('./listaServicos.json', 'utf8'));
+var listaServicos = JSON.parse(fs.readFileSync(__dirname + '/listaServicos.json', 'utf8'));
 
 //recupera a lista de todas as cidades do Brasil armazenadas em um JSON
-var listaCidades = JSON.parse(fs.readFileSync('./listaCidades.json', 'utf8'));
+var listaCidades = JSON.parse(fs.readFileSync(__dirname + '/listaCidades.json', 'utf8'));
 
 /*
 * @func defineRegime -> recebe um código referente ao regime tributário e retorna uma String descritiva.
@@ -68,97 +68,108 @@ var simplify = (data, callback) => {
 
     if(err) throw err;
 
-    let el = elBruto.CompNfse.Nfse[0].InfNfse[0];
-    let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
-    let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : false;
+    //testa se o XML recebido contém uma nota.
+    if(elBruto.CompNfse) {
+      //informações gerais da nota.
+      let el = elBruto.CompNfse.Nfse[0].InfNfse[0];
 
-    let nota = {
-      cancelada: {
-        is: cancel ? true : false,
-        sub: sub,
-        data: cancel ? new Date(cancel.Confirmacao[0].DataHora[0]) : false
-      },
-      num: el.Numero[0],
-      codVer: el.CodigoVerificacao[0],
-      emissao: new Date(el.DataEmissao[0]),
-      comp: new Date(el.Competencia[0]),
-      desc: el.Servico[0].Discriminacao[0].replace(/\|/g, '\n'),
-      simples: el.OptanteSimplesNacional ? el.OptanteSimplesNacional[0] : "2",
-      natureza: {
-        desc: el.NaturezaOperacao ? defineNatureza(el.NaturezaOperacao[0]) : "",
-        cod: el.NaturezaOperacao[0] || 0
-      },
-      regimeEspecial: {
-          desc: el.RegimeEspecialTributacao ? defineRegime(el.RegimeEspecialTributacao[0]) : el.simples === "1" ? "ME ou EPP do Simples Nacional" : "",
-          cod: el.RegimeEspecialTributacao ? el.RegimeEspecialTributacao[0] : 0
-      },
-      subitem: {
-        desc: el.Servico[0].ItemListaServico ? defineServico(el.Servico[0].ItemListaServico[0]) : "",
-        cod: el.Servico[0].ItemListaServico ? el.Servico[0].ItemListaServico[0] : 0
-      },
-      valores: {
-        valor: el.Servico[0].Valores[0].ValorServicos[0],
-        valorLiquido: el.Servico[0].Valores[0].ValorLiquidoNfse[0],
-        baseCalc: el.Servico[0].Valores[0].BaseCalculo[0],
-        deducao: el.Servico[0].Valores[0].ValorDeducoes ? el.Servico[0].Valores[0].ValorDeducoes[0] : 0,
-        desconto: el.Servico[0].Valores[0].DescontoCondicionado ? el.Servico[0].Valores[0].DescontoCondicionado[0] : 0,
-        incondicionado: el.Servico[0].Valores[0].DescontoIncondicionado ? el.Servico[0].Valores[0].DescontoIncondicionado[0] : 0,
-        iss: {
-            valor: el.Servico[0].Valores[0].ValorIss ? el.Servico[0].Valores[0].ValorIss[0] : 0,
-            aliquota: el.Servico[0].Valores[0].Aliquota ? el.Servico[0].Valores[0].Aliquota[0] : 0
+      //informações sobre o cancelamento da nota.
+      let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
+      let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : "";
+
+      let nota = {
+        cancelada: {
+          is: cancel ? true : false,
+          sub: sub,
+          data: cancel ? new Date(cancel.Confirmacao[0].DataHora[0]) : false
         },
-        retencoes: {
-          pis: el.Servico[0].Valores[0].ValorPis ? el.Servico[0].Valores[0].ValorPis[0] : 0,
-          cofins: el.Servico[0].Valores[0].ValorCofins ? el.Servico[0].Valores[0].ValorCofins[0] : 0,
-          csll: el.Servico[0].Valores[0].ValorCsll ? el.Servico[0].Valores[0].ValorCsll[0] : 0,
-          inss: el.Servico[0].Valores[0].ValorInss ? el.Servico[0].Valores[0].ValorInss[0] : 0,
-          ir: el.Servico[0].Valores[0].ValorIr ? el.Servico[0].Valores[0].ValorIr[0] : 0,
-          iss: el.Servico[0].Valores[0].ValorIssRetido ? el.Servico[0].Valores[0].ValorIssRetido[0] : 0,
-          outras: el.Servico[0].Valores[0].OutrasRetencoes ? el.Servico[0].Valores[0].OutrasRetencoes[0] : 0
+        num: el.Numero[0],
+        codVer: el.CodigoVerificacao[0],
+        emissao: new Date(el.DataEmissao[0]),
+        comp: new Date(el.Competencia[0]),
+        desc: el.Servico[0].Discriminacao[0].replace(/\|/g, '\n'),
+        simples: el.OptanteSimplesNacional ? el.OptanteSimplesNacional[0] : "2",
+        natureza: {
+          desc: el.NaturezaOperacao ? defineNatureza(el.NaturezaOperacao[0]) : "",
+          cod: el.NaturezaOperacao[0] || 0
+        },
+        regimeEspecial: {
+            desc: el.RegimeEspecialTributacao ? defineRegime(el.RegimeEspecialTributacao[0]) : el.simples === "1" ? "ME ou EPP do Simples Nacional" : "",
+            cod: el.RegimeEspecialTributacao ? el.RegimeEspecialTributacao[0] : 0
+        },
+        subitem: {
+          desc: el.Servico[0].ItemListaServico ? defineServico(el.Servico[0].ItemListaServico[0]) : "",
+          cod: el.Servico[0].ItemListaServico ? el.Servico[0].ItemListaServico[0] : 0
+        },
+        valores: {
+          valor: el.Servico[0].Valores[0].ValorServicos[0],
+          valorLiquido: el.Servico[0].Valores[0].ValorLiquidoNfse[0],
+          baseCalc: el.Servico[0].Valores[0].BaseCalculo[0],
+          deducao: el.Servico[0].Valores[0].ValorDeducoes ? el.Servico[0].Valores[0].ValorDeducoes[0] : 0,
+          desconto: el.Servico[0].Valores[0].DescontoCondicionado ? el.Servico[0].Valores[0].DescontoCondicionado[0] : 0,
+          incondicionado: el.Servico[0].Valores[0].DescontoIncondicionado ? el.Servico[0].Valores[0].DescontoIncondicionado[0] : 0,
+          iss: {
+              valor: el.Servico[0].Valores[0].ValorIss ? el.Servico[0].Valores[0].ValorIss[0] : 0,
+              aliquota: el.Servico[0].Valores[0].Aliquota ? el.Servico[0].Valores[0].Aliquota[0] : 0
+          },
+          retencoes: {
+            pis: el.Servico[0].Valores[0].ValorPis ? el.Servico[0].Valores[0].ValorPis[0] : 0,
+            cofins: el.Servico[0].Valores[0].ValorCofins ? el.Servico[0].Valores[0].ValorCofins[0] : 0,
+            csll: el.Servico[0].Valores[0].ValorCsll ? el.Servico[0].Valores[0].ValorCsll[0] : 0,
+            inss: el.Servico[0].Valores[0].ValorInss ? el.Servico[0].Valores[0].ValorInss[0] : 0,
+            ir: el.Servico[0].Valores[0].ValorIr ? el.Servico[0].Valores[0].ValorIr[0] : 0,
+            iss: el.Servico[0].Valores[0].ValorIssRetido ? el.Servico[0].Valores[0].ValorIssRetido[0] : 0,
+            outras: el.Servico[0].Valores[0].OutrasRetencoes ? el.Servico[0].Valores[0].OutrasRetencoes[0] : 0
+          }
+        },
+        prestador: {
+          nome: el.PrestadorServico[0].RazaoSocial[0],
+          cnpj: el.PrestadorServico[0].IdentificacaoPrestador[0].Cnpj[0],
+          im: el.PrestadorServico[0].IdentificacaoPrestador[0].InscricaoMunicipal[0],
+          endereco: {
+            logradouro: el.PrestadorServico[0].Endereco[0].Endereco[0],
+            num: el.PrestadorServico[0].Endereco[0].Numero,
+            complemento: el.PrestadorServico[0].Endereco[0].Complemento ? el.PrestadorServico[0].Endereco[0].Complemento[0] : "",
+            bairro: el.PrestadorServico[0].Endereco[0].Bairro[0],
+            codigoMun: el.PrestadorServico[0].Endereco[0].CodigoMunicipio[0],
+            cidade: defineCidade(el.PrestadorServico[0].Endereco[0].CodigoMunicipio[0]),
+            estado: el.PrestadorServico[0].Endereco[0].Uf[0],
+            cep: el.PrestadorServico[0].Endereco[0].Cep[0]
+          },
+          contato: el.PrestadorServico[0].Contato ?  {
+            tel: el.PrestadorServico[0].Contato[0].Telefone ? el.PrestadorServico[0].Contato[0].Telefone[0] : "",
+            email: el.PrestadorServico[0].Contato[0].Email ? el.PrestadorServico[0].Contato[0].Email[0] : ""
+          } : {},
+        },
+        tomador: {
+          nome: el.TomadorServico[0].RazaoSocial[0],
+          cnpj: el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cnpj ? el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cnpj[0] : "",
+          cpf: el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cpf ? el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cpf[0] : "",
+          im: el.TomadorServico[0].IdentificacaoTomador[0].InscricaoMunicipal ? el.TomadorServico[0].IdentificacaoTomador[0].InscricaoMunicipal[0] : "",
+          endereco: {
+            logradouro: el.TomadorServico[0].Endereco[0].Endereco[0],
+            num: el.TomadorServico[0].Endereco[0].Numero[0],
+            complemento: el.TomadorServico[0].Endereco[0].Complemento ? el.TomadorServico[0].Endereco[0].Complemento[0] : "",
+            bairro: el.TomadorServico[0].Endereco[0].Bairro[0],
+            codigoMun: el.TomadorServico[0].Endereco[0].CodigoMunicipio[0],
+            cidade: defineCidade(el.PrestadorServico[0].Endereco[0].CodigoMunicipio[0]),
+            estado: el.TomadorServico[0].Endereco[0].Uf[0],
+            cep: el.TomadorServico[0].Endereco[0].Cep[0]
+          },
+          contato: el.TomadorServico[0].Contato ?  {
+            tel: el.TomadorServico[0].Contato[0].Telefone ? el.TomadorServico[0].Contato[0].Telefone[0] : "",
+            email: el.TomadorServico[0].Contato[0].Email ? el.TomadorServico[0].Contato[0].Email[0] : ""
+          } : {}
         }
-      },
-      prestador: {
-        nome: el.PrestadorServico[0].RazaoSocial[0],
-        cnpj: el.PrestadorServico[0].IdentificacaoPrestador[0].Cnpj[0],
-        im: el.PrestadorServico[0].IdentificacaoPrestador[0].InscricaoMunicipal[0],
-        endereco: {
-          logradouro: el.PrestadorServico[0].Endereco[0].Endereco[0],
-          num: el.PrestadorServico[0].Endereco[0].Numero,
-          complemento: el.PrestadorServico[0].Endereco[0].Complemento ? el.PrestadorServico[0].Endereco[0].Complemento[0] : "",
-          bairro: el.PrestadorServico[0].Endereco[0].Bairro[0],
-          codigoMun: el.PrestadorServico[0].Endereco[0].CodigoMunicipio[0],
-          cidade: defineCidade(el.PrestadorServico[0].Endereco[0].CodigoMunicipio[0]),
-          estado: el.PrestadorServico[0].Endereco[0].Uf[0],
-          cep: el.PrestadorServico[0].Endereco[0].Cep[0]
-        },
-        contato: el.PrestadorServico[0].Contato ?  {
-          tel: el.PrestadorServico[0].Contato[0].Telefone ? el.PrestadorServico[0].Contato[0].Telefone[0] : "",
-          email: el.PrestadorServico[0].Contato[0].Email ? el.PrestadorServico[0].Contato[0].Email[0] : ""
-        } : {},
-      },
-      tomador: {
-        nome: el.TomadorServico[0].RazaoSocial[0],
-        cnpj: el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cnpj ? el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cnpj[0] : "",
-        cpf: el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cpf ? el.TomadorServico[0].IdentificacaoTomador[0].CpfCnpj[0].Cpf[0] : "",
-        im: el.TomadorServico[0].IdentificacaoTomador[0].InscricaoMunicipal ? el.TomadorServico[0].IdentificacaoTomador[0].InscricaoMunicipal[0] : "",
-        endereco: {
-          logradouro: el.TomadorServico[0].Endereco[0].Endereco[0],
-          num: el.TomadorServico[0].Endereco[0].Numero[0],
-          complemento: el.TomadorServico[0].Endereco[0].Complemento ? el.TomadorServico[0].Endereco[0].Complemento[0] : "",
-          bairro: el.TomadorServico[0].Endereco[0].Bairro[0],
-          codigoMun: el.TomadorServico[0].Endereco[0].CodigoMunicipio[0],
-          cidade: defineCidade(el.PrestadorServico[0].Endereco[0].CodigoMunicipio[0]),
-          estado: el.TomadorServico[0].Endereco[0].Uf[0],
-          cep: el.TomadorServico[0].Endereco[0].Cep[0]
-        },
-        contato: el.TomadorServico[0].Contato ?  {
-          tel: el.TomadorServico[0].Contato[0].Telefone ? el.TomadorServico[0].Contato[0].Telefone[0] : "",
-          email: el.TomadorServico[0].Contato[0].Email ? el.TomadorServico[0].Contato[0].Email[0] : ""
-        } : {}
       }
+
+      callback(nota);
+    }
+    else {
+      callback(undefined);
     }
 
-    callback(nota);
+
 
   });
 
@@ -189,21 +200,29 @@ var readDir = (dirname, callback) => {
 
     let arr = [];
 
-    files.forEach((filename, id) => {
+    //confere se existem arquivos na array files.
+    if(files.length === 0) {
+      callback(undefined);
+    }
+    else {
+      files.forEach((filename, id) => {
 
-      if(filename.endsWith('.xml')){
+        if(filename.endsWith('.xml')){
 
-        fs.readFile(dirname + filename, 'utf8', (err, data) => {
-          simplify(data, nota => {
+          fs.readFile(dirname + filename, 'utf8', (err, data) => {
+            simplify(data, nota => {
 
-            arr.push(nota);
+              if(nota)
+                arr.push(nota);
 
-            if(arr.length === files.length) callback(arr);
+              if(arr.length === files.length) callback(arr);
 
+            });
           });
-        });
-      }
-    });
+        }
+      });
+    }
+
   });
 
 }

@@ -1,8 +1,6 @@
 'use strict';
 const {ipcRenderer} = require('electron');
 
-let m;
-
 ipcRenderer.on('message', (e, m) => {
       console.log(m);
       if(m.type === 'start') {
@@ -15,6 +13,11 @@ ipcRenderer.on('message', (e, m) => {
         document.getElementById("start").className = document.getElementById("start").className.replace(" disabled", '');
         document.getElementById("bar").style.width = "0%";
         window.alert("Conversão relizada com sucesso!");
+      }
+      if(m.type === 'null') {
+        document.getElementById("start").className = document.getElementById("start").className.replace(" disabled", '');
+        document.getElementById("bar").style.width = "0%";
+        window.alert("Nenhuma nota foi encontrada no diretório");
       }
 });
 

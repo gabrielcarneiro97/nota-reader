@@ -1,9 +1,7 @@
 'use strict';
-const pdf = require('../pdfCreator.js');
+const pdf = require(__dirname + '/../pdfCreator.js');
 const timer = require('timers');
 const {ipcRenderer} = require('electron');
-
-
 
 ipcRenderer.on('message', (e, m) => {
 
@@ -13,10 +11,13 @@ ipcRenderer.on('message', (e, m) => {
     pdf.readDir(path, status => {
       let percent = parseInt((status.now/status.total) * 100);
       ipcRenderer.send('toUi', {type: 'process', data: percent});
-    }, () => {
-      timer.setTimeout(() => {
-        ipcRenderer.send('toUi', {type:'end'});
-      }, 1000);
+    }, info => {
+      if(info === 'ok')
+        timer.setTimeout(() => {
+            ipcRenderer.send('toUi', {type:'end'});
+        }, 1000);
+      if(info === 'null')
+        ipcRenderer.send('toUi', {type: 'null'});
     });
   }
 
