@@ -9,7 +9,7 @@ ipcRenderer.on('message', (e, m) => {
     let path = m.data;
     ipcRenderer.send('toUi', {type: 'start'});
     pdf.readDir(path, status => {
-      let percent = parseInt((status.now/status.total) * 100);
+      let percent = status.now/status.total;
       ipcRenderer.send('toUi', {type: 'process', data: percent});
     }, info => {
       if(info === 'ok')
