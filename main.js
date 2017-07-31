@@ -36,7 +36,6 @@ var createWindow = () => {
     slashes: true
   }));
 
-
   // win.webContents.openDevTools({detach: true});
 
   // backgroundWin.webContents.openDevTools({detach: true});
@@ -54,15 +53,11 @@ var createWindow = () => {
     win.webContents.send('message', m);
   });
 
-
   ipcMain.on('toProcessor', (e, m) => {
     backgroundWin.webContents.send('message', m);
   });
 
-
 }
-
-
 
 app.on('ready', createWindow);
 
@@ -131,7 +126,6 @@ function handleSquirrelEvent(application) {
             // This is called on the outgoing version of your app before
             // we update to the new version - it's the opposite of
             // --squirrel-updated
-
             application.quit();
             return true;
     }

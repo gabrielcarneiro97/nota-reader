@@ -1,4 +1,5 @@
 'use strict';
+
 const fs = require('fs');
 const xml2js = require('xml2js');
 
@@ -77,11 +78,13 @@ var simplify = (data, callback) => {
       let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
       let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : "";
 
+      console.log(el.Numero[0]);
+      console.log(el.TomadorServico[0].Contato[0].Telefone);
       let nota = {
         cancelada: {
           is: cancel ? true : false,
           sub: sub,
-          data: cancel ? new Date(cancel.Confirmacao[0].DataHora[0]) : false
+          data: cancel ? new Date(cancel.Confirmacao[0].DataHora ? cancel.Confirmacao[0].DataHora[0] : cancel.Confirmacao[0].DataHoraCancelamento ? cancel.Confirmacao[0].DataHoraCancelamento[0] : undefined) : false
         },
         num: el.Numero[0],
         codVer: el.CodigoVerificacao[0],
@@ -94,7 +97,7 @@ var simplify = (data, callback) => {
           cod: el.NaturezaOperacao[0] || 0
         },
         regimeEspecial: {
-            desc: el.RegimeEspecialTributacao ? defineRegime(el.RegimeEspecialTributacao[0]) : el.simples === "1" ? "ME ou EPP do Simples Nacional" : "",
+            desc: el.RegimeEspecialTributacao ? defineRegime(el.RegimeEspecialTributacao[0]) : el.OptanteSimplesNacional[0] === "1" ? "ME ou EPP do Simples Nacional" : "",
             cod: el.RegimeEspecialTributacao ? el.RegimeEspecialTributacao[0] : 0
         },
         subitem: {
@@ -169,10 +172,7 @@ var simplify = (data, callback) => {
       callback(undefined);
     }
 
-
-
   });
-
 
 }
 
