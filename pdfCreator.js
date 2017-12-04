@@ -14,11 +14,11 @@ var printer = new PdfPrinter({
 });
 
 /*
-* @func generatePdf -> função responsável por criar os pdfs, recebe um objeto com as informações da nota e chama uma função callback contendo um PDFKit.
+* @func generateNota -> função responsável por criar os pdfs, recebe um objeto com as informações da nota e chama uma função callback contendo um PDFKit.
 *   @param el -> parametro contendo o objeto com as informações da nota.
 *   @param callback -> função que é chamada no final do processamento do objeto, é passado como parametro para essa função um objeto PDFKit.
 */
-var generatePdf = (el, callback) => {
+var generateNota = (el, callback) => {
 
   //formatação da data de emissão.
   let diaEmissao = el.emissao.getDate() < 10 ? "0" + el.emissao.getDate() : el.emissao.getDate();
@@ -165,6 +165,47 @@ var generatePdf = (el, callback) => {
 
 }
 
+var generateRelatorio = (dir, callback) => {
+
+  if(!dir.endsWith('/')) dir += '/';
+
+  nota.readDir(dir, objs => {
+
+    let empresas = {};
+
+    objs.forEach((el, id) => {
+      empresas[el.prestador.cnpj] = empresas[el.prestador.cnpj] || [];
+      empresas[el.prestador.cnpj].push(el);
+    });
+
+    Object.keys(empresas).map((key, index) => {
+      empresas[key][0];
+      empresas[key].forEach((el, id) => {
+        //formatação da data de emissão.
+        let diaEmissao = el.emissao.getDate() < 10 ? "0" + el.emissao.getDate() : el.emissao.getDate();
+        let mesEmissao = el.emissao.getMonth()+1 < 10 ? "0" + (el.emissao.getMonth()+1) : el.emissao.getMonth()+1;
+        let dataEmissao = `${diaEmissao}/${mesEmissao}/${el.emissao.getFullYear()}`;
+
+        //formatação da data de competência.
+        let diaComp = el.comp.getDate() < 10 ? "0" + el.comp.getDate() : el.comp.getDate();
+        let mesComp = el.comp.getMonth()+1 < 10 ? "0" + (el.comp.getMonth()+1) : el.comp.getMonth()+1;
+        let dataComp = `${diaComp}/${mesComp}/${el.comp.getFullYear()}`;
+
+        //check para ver se a nota está cancelada.
+        let cancelada = [];
+        if(el.cancelada.is){
+          let diaSub = el.cancelada.data.getDate() < 10 ? "0" + el.cancelada.data.getDate() : el.cancelada.data.getDate();
+          let mesSub = el.cancelada.data.getMonth()+1 < 10 ? "0" + (el.cancelada.data.getMonth()+1) : el.cancelada.data.getMonth()+1;
+          let dataSub = `${diaSub}/${mesSub}/${el.cancelada.data.getFullYear()}`;
+          cancelada = [
+            {text: `Nota de substituição: ${el.cancelada.sub}\t`},
+            {text: `Data: ${dataSub}\t`}]
+        }
+      });
+    });
+  });
+}
+
 /*
 * @func readDir -> função responsável por ler um diretório e converter todas as notas fiscais contidas nele em pdfs.
 *   @param dir -> string com o diretório a ser lido.
@@ -182,7 +223,7 @@ var readDir = (dir, progress, callback) => {
 
         let fileName = el.cancelada.is ? `${el.num} CANCELADA.pdf` : `${el.num}.pdf`;
 
-        generatePdf(el, pdfDoc => {
+        generateNota(el, pdfDoc => {
           if(!fs.existsSync(`${dir}pdfs/`)) fs.mkdirSync(`${dir}pdfs/`);
           pdfDoc.pipe(fs.createWriteStream(`${dir}pdfs/${fileName}`));
           pdfDoc.end();
@@ -201,6 +242,6 @@ var readDir = (dir, progress, callback) => {
 }
 
 module.exports = {
-  generatePdf: generatePdf,
+  generateNota: generateNota,
   readDir: readDir
 }

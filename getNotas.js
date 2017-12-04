@@ -74,12 +74,13 @@ var simplify = (data, callback) => {
       //informações gerais da nota.
       let el = elBruto.CompNfse.Nfse[0].InfNfse[0];
 
+      console.log(el);
+
       //informações sobre o cancelamento da nota.
       let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false;
       let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : "";
 
       console.log(el.Numero[0]);
-      console.log(el.TomadorServico[0].Contato[0].Telefone);
       let nota = {
         cancelada: {
           is: cancel ? true : false,
