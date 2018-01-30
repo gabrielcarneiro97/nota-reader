@@ -17,12 +17,12 @@ ipcRenderer.on('message', (e, m) => {
       let percent = status.now / status.total
 
       ipcRenderer.send('toUi', {type: 'process', data: percent})
-    }, info => {
-      if (info === 'ok') {
+    }, done => {
+      if (done) {
         timer.setTimeout(() => {
           ipcRenderer.send('toUi', { type: 'end' })
         }, 1000)
-      } else if (info === 'null') {
+      } else {
         ipcRenderer.send('toUi', { type: 'null' })
       }
     })

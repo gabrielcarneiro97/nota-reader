@@ -30,9 +30,9 @@ var createWindow = () => {
     slashes: true
   }))
 
-  // win.webContents.openDevTools({detach: true});
+  // win.webContents.openDevTools({detach: true})
 
-  // backgroundWin.webContents.openDevTools({detach: true});
+  // backgroundWin.webContents.openDevTools({detach: true})
 
   win.on('closed', () => {
     win = null
