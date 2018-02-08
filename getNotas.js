@@ -5,15 +5,15 @@ const fs = require('fs')
 const xml2js = require('xml2js')
 
 // recupera a lista de serviços armazenada em um JSON
-var listaServicos = JSON.parse(fs.readFileSync(path.join(__dirname, '/listaServicos.json'), 'utf8'))
+const listaServicos = require(path.join(__dirname, '/listaServicos.json'))
 
 // recupera a lista de todas as cidades do Brasil armazenadas em um JSON
-var listaCidades = JSON.parse(fs.readFileSync(path.join(__dirname, '/listaCidades.json'), 'utf8'))
+const listaCidades = require(path.join(__dirname, '/listaCidades.json'))
 
 /**
 * @func defineRegime -> recebe um código referente ao regime tributário e retorna uma String descritiva.
-*   @param cod -> código do regime tributário.
-*   @return String contendo a descrição do regime.
+*   @param {String|Number} cod -> código do regime tributário.
+*   @return {String} -> contendo a descrição do regime.
 */
 var defineRegime = cod => {
   cod = trataCod(cod)
@@ -28,7 +28,7 @@ var defineRegime = cod => {
 /**
 * @func defineNatureza -> recebe um código referente a natureza da tributação e retorna uma String descritiva.
 *   @param cod -> código da natureza da tributação.
-*   @return String contendo a descrição da natureza.
+*   @return {String} -> contendo a descrição da natureza.
 */
 var defineNatureza = cod => {
   cod = trataCod(cod)
@@ -42,28 +42,29 @@ var defineNatureza = cod => {
 
 /**
 * @func defineServico -> recebe um código referente ao serviço, consulta um objeto contendo todos os serviços listados na LC 116/2003 e retorna uma String com a descrição.
-*   @param cod -> código do serviço.
-*   @return String contendo a descrição do serviço.
+*   @param {String|Number} cod -> código do serviço.
+*   @return {String} -> contendo a descrição do serviço.
 */
 var defineServico = cod => listaServicos[trataCod(cod)]
 
 /**
 * @func defineCidade -> recebe um código IBGE referente a cidade, consulta um objeto com todas as cidades e códigos listados e retorna uma String com o nome da cidade referente.
-*   @param cod -> código IBGE da cidade.
-*   @return String contendo o nome da cidade.
+*   @param {String|Number} cod -> código IBGE da cidade.
+*   @return {String} -> contendo o nome da cidade.
 */
 var defineCidade = cod => listaCidades[trataCod(cod)]
 
 /**
 * @func trataCod -> função responsável por tratar os códigos recebidos nas funções de definição.
-*   @return cod tratado.
+*   @param {String|Number} cod -> coverte o código para uma String, se ele for undef ou null, retorna 0
+*   @return {String} -> contendo cod tratado.
 */
 var trataCod = cod => (cod |= 0).toString()
 
 /**
 * @func converterXML -> recebe o NFS-e em XML e o converte em um objeto.
-*   @param el -> XML contendo a nota.
-*   @param callback -> função de callback que tem como @param nota onde se encontra a nota objetificada.
+*   @param {String} el -> XML contendo a nota.
+*   @return {Promise} -> retorna uma Promise, quando resolvida contém o objeto com as informações da nota.
 */
 var converterXML = (data) => {
   return new Promise((resolve, reject) => {
@@ -77,13 +78,9 @@ var converterXML = (data) => {
         // informações gerais da nota.
         let el = elBruto.CompNfse.Nfse[0].InfNfse[0]
 
-        console.log(el)
-
         // informações sobre o cancelamento da nota.
         let cancel = elBruto.CompNfse.NfseCancelamento ? elBruto.CompNfse.NfseCancelamento[0] : false
         let sub = cancel && elBruto.CompNfse.NfseSubstituicao ? elBruto.CompNfse.NfseSubstituicao[0].SubstituicaoNfse[0].NfseSubstituidora[0] : ''
-
-        console.log(el.Numero[0])
 
         let nota = {
           cancelada: {
@@ -182,14 +179,14 @@ var converterXML = (data) => {
 /**
 * @func isXml -> testa se o nome do arquivo é referente a um xml.
 *   @param filename -> nome do arquivo.
-*   @return true se o arquivo terminar com .xml.
+*   @return {Boolean} -> true se o nome do arquivo terminar com .xml.
 */
 var isXml = filename => filename.endsWith('.xml')
 
 /**
 * @func readDir -> lê um diretório e converte todos os arquivos .xml no diretório em objetos.
-*   @param dirname -> é o nome do diretório.
-*   @param callback -> função callback que tem como @param arr que contém um array com todos os objetos.
+*   @param {String} dirname -> é o nome do diretório.
+*   @return {Promise} -> Retorna uma promise, quando resolvida contém um {Array} com os objetos das notas
 */
 var readDir = (dirname) => {
   return new Promise((resolve, reject) => {

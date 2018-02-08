@@ -7,17 +7,16 @@ const {ipcRenderer} = require('electron')
 
 ipcRenderer.on('message', (e, m) => {
   if (m.type === 'start') {
-    console.log(m)
-
     let path = m.data
 
     ipcRenderer.send('toUi', {type: 'start'})
 
     pdf.readDir(path, status => {
       let percent = status.now / status.total
+      console.log(percent)
 
       ipcRenderer.send('toUi', {type: 'process', data: percent})
-    }, done => {
+    }).then(done => {
       if (done) {
         timer.setTimeout(() => {
           ipcRenderer.send('toUi', { type: 'end' })
@@ -25,6 +24,8 @@ ipcRenderer.on('message', (e, m) => {
       } else {
         ipcRenderer.send('toUi', { type: 'null' })
       }
+    }).catch(err => {
+      console.error(err)
     })
   }
 })
