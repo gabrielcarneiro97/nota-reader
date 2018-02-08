@@ -7,7 +7,7 @@ const url = require('url')
 let win
 let backgroundWin
 
-var createWindow = () => {
+app.on('ready', () => {
   win = new BrowserWindow({
     width: 300,
     height: 250,
@@ -16,7 +16,7 @@ var createWindow = () => {
     autoHideMenuBar: true
   })
 
-  backgroundWin = new BrowserWindow({show: false})
+  backgroundWin = new BrowserWindow({ show: false })
 
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'app/index.html'),
@@ -32,7 +32,7 @@ var createWindow = () => {
 
   // win.webContents.openDevTools({detach: true})
 
-  // backgroundWin.webContents.openDevTools({detach: true})
+  // backgroundWin.webContents.openDevTools({ detach: true })
 
   win.on('closed', () => {
     win = null
@@ -50,9 +50,7 @@ var createWindow = () => {
   ipcMain.on('toProcessor', (e, m) => {
     backgroundWin.webContents.send('message', m)
   })
-}
-
-app.on('ready', createWindow)
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

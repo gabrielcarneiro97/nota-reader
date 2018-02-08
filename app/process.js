@@ -27,5 +27,4 @@ ipcRenderer.on('message', (e, m) => {
       }
     })
   }
-
 })

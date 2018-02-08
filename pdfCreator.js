@@ -4,6 +4,7 @@ const path = require('path')
 const notas = require(path.join(__dirname, '/getNotas.js'))
 const PdfPrinter = require('pdfmake')
 const fs = require('fs')
+const R$ = require(path.join(__dirname, '/assets.js')).R$
 
 var printer = new PdfPrinter({
   Roboto: {
@@ -14,7 +15,7 @@ var printer = new PdfPrinter({
   }
 })
 
-/*
+/**
 * @func generateNota -> função responsável por criar os pdfs, recebe um objeto com as informações da nota e chama uma função callback contendo um PDFKit.
 *   @param el -> parametro contendo o objeto com as informações da nota.
 *   @param callback -> função que é chamada no final do processamento do objeto, é passado como parametro para essa função um objeto PDFKit.
@@ -124,12 +125,12 @@ var generateNota = (el, callback) => {
             { text: `Valor liquido:\n`, fontSize: 9, bold: true }
         ]},
         { text: [
-            { text: `R$ ${el.valores.valor}\n`, fontSize: 9, bold: true },
-            { text: `R$ ${el.valores.desconto}\n`, fontSize: 9 },
-            { text: `R$ ${retencoesFederais}\n`, fontSize: 9 },
-            { text: `R$ ${el.valores.retencoes.iss}\n`, fontSize: 9 },
-            { text: `R$ ${el.valores.retencoes.outras}\n`, fontSize: 9 },
-            { text: `R$ ${el.valores.valorLiquido}\n`, fontSize: 9, bold: true }],
+            { text: `R$ ${R$(el.valores.valor)}\n`, fontSize: 9, bold: true },
+            { text: `R$ ${R$(el.valores.desconto)}\n`, fontSize: 9 },
+            { text: `R$ ${R$(retencoesFederais)}\n`, fontSize: 9 },
+            { text: `R$ ${R$(el.valores.retencoes.iss)}\n`, fontSize: 9 },
+            { text: `R$ ${R$(el.valores.retencoes.outras)}\n`, fontSize: 9 },
+            { text: `R$ ${R$(el.valores.valorLiquido)}\n`, fontSize: 9, bold: true }],
           alignment: 'right',
           marginRight: 15
         },
@@ -141,23 +142,23 @@ var generateNota = (el, callback) => {
             { text: `( x ) Aliquota: \n`, fontSize: 9 },
             { text: `( = ) Valor ISS:\n`, fontSize: 9, bold: true }]},
         {text: [
-            { text: `R$ ${el.valores.valor}\n`, fontSize: 9, bold: true },
-            { text: `R$ ${el.valores.deducao}\n`, fontSize: 9 },
-            { text: `R$ ${el.valores.incondicionado}\n`, fontSize: 9 },
-            { text: `R$ ${el.valores.baseCalc}\n`, fontSize: 9, bold: true },
+            { text: `R$ ${R$(el.valores.valor)}\n`, fontSize: 9, bold: true },
+            { text: `R$ ${R$(el.valores.deducao)}\n`, fontSize: 9 },
+            { text: `R$ ${R$(el.valores.incondicionado)}\n`, fontSize: 9 },
+            { text: `R$ ${R$(el.valores.baseCalc)}\n`, fontSize: 9, bold: true },
             { text: `${aliquota}%\n`, fontSize: 9 },
-            { text: `R$ ${el.valores.iss.valor}\n`, fontSize: 9, bold: true }],
+            { text: `R$ ${R$(el.valores.iss.valor)}\n`, fontSize: 9, bold: true }],
           alignment: 'right'
         }],
         marginBottom: 6
       },
       {text: `Retenções Federais:\n`, fontSize: 9},
       {text: [
-        { text: `PIS: R$ ${el.valores.retencoes.pis || 0}\t` },
-        { text: `COFINS: R$ ${el.valores.retencoes.cofins || 0}\t` },
-        { text: `CSLL: R$ ${el.valores.retencoes.csll || 0}\t` },
-        { text: `INSS: R$ ${el.valores.retencoes.inss || 0}\t` },
-        { text: `IR: R$ ${el.valores.retencoes.ir || 0}\t` }],
+        { text: `PIS: R$ ${R$(el.valores.retencoes.pis) || 0}\t` },
+        { text: `COFINS: R$ ${R$(el.valores.retencoes.cofins) || 0}\t` },
+        { text: `CSLL: R$ ${R$(el.valores.retencoes.csll) || 0}\t` },
+        { text: `INSS: R$ ${R$(el.valores.retencoes.inss) || 0}\t` },
+        { text: `IR: R$ ${R$(el.valores.retencoes.ir) || 0}\t` }],
         marginLeft: 15,
         fontSize: 8
       },
@@ -170,7 +171,7 @@ var generateNota = (el, callback) => {
   callback(printer.createPdfKitDocument(docDef))
 }
 
-/*
+/**
 * @func readDir -> função responsável por ler um diretório e converter todas as notas fiscais contidas nele em pdfs.
 *   @param dir -> string com o diretório a ser lido.
 *   @param progress -> função chamada a cada xml processado para indicar o andamento da converção, possui como parametro o número total de documentos a serem convertidos e o que acabou de ser convertido.
@@ -181,7 +182,7 @@ var readDir = (dir, progress, callback) => {
     dir += '/'
   }
 
-  notas.readDir(dir, objs => {
+  notas.readDir(dir).then(objs => {
     if (objs) {
       objs.forEach((el, id) => {
         let fileName = el.cancelada.is ? `${el.num} CANCELADA.pdf` : `${el.num}.pdf`
