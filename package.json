@@ -1,10 +1,14 @@
 {
   "name": "nota_reader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Conversor de notas",
   "main": "./main.js",
+  "build": {
+    "appId": "NotaReader"
+  },
   "scripts": {
-    "test": "npx electron ."
+    "test": "npx electron .",
+    "dist": "npx electron-builder"
   },
   "repository": {
     "type": "git",
@@ -18,7 +22,6 @@
   "homepage": "https://github.com/gabrielcarneiro97/nota-reader#readme",
   "dependencies": {
     "asar": "^0.13.0",
-    "electron-squirrel-startup": "^1.0.0",
     "hover.css": "^2.2.0",
     "materialize-css": "^0.99.0",
     "pdfmake": "^0.1.31",
@@ -27,8 +30,6 @@
   },
   "devDependencies": {
     "electron": "^1.6.16",
-    "electron-packager": "^10.1.0",
-    "electron-prebuilt": "^1.4.13",
-    "electron-winstaller": "^2.6.3"
+    "electron-builder": "^19.56.0"
   }
 }
