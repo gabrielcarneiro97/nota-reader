@@ -1,0 +1,258 @@
+{
+  "_declaration": {
+    "_attributes": {
+      "version": "1.0",
+      "encoding": "UTF-8"
+    }
+  },
+  "CompNfse": {
+    "_attributes": {
+      "xmlns": "http://www.abrasf.org.br/nfse.xsd"
+    },
+    "Nfse": {
+      "_attributes": {
+        "xmlns": "http://www.abrasf.org.br/nfse.xsd",
+        "versao": "1.00"
+      },
+      "InfNfse": {
+        "_attributes": {
+          "Id": "nfse"
+        },
+        "Numero": {
+          "_text": "201800000000001"
+        },
+        "CodigoVerificacao": {
+          "_text": "ae3b79e5"
+        },
+        "DataEmissao": {
+          "_text": "2018-01-10T09:21:45"
+        },
+        "IdentificacaoRps": {
+          "Numero": {
+            "_text": "1"
+          },
+          "Serie": {
+            "_text": "1"
+          },
+          "Tipo": {
+            "_text": "1"
+          }
+        },
+        "DataEmissaoRps": {
+          "_text": "2018-01-10"
+        },
+        "NaturezaOperacao": {
+          "_text": "1"
+        },
+        "RegimeEspecialTributacao": {
+          "_text": "6"
+        },
+        "OptanteSimplesNacional": {
+          "_text": "1"
+        },
+        "IncentivadorCultural": {
+          "_text": "2"
+        },
+        "Competencia": {
+          "_text": "2018-01-10T09:21:00"
+        },
+        "Servico": {
+          "Valores": {
+            "ValorServicos": {
+              "_text": "950.00"
+            },
+            "ValorDeducoes": {
+              "_text": "0.00"
+            },
+            "ValorPis": {
+              "_text": "0.00"
+            },
+            "ValorCofins": {
+              "_text": "0.00"
+            },
+            "ValorInss": {
+              "_text": "0.00"
+            },
+            "ValorIr": {
+              "_text": "0.00"
+            },
+            "ValorCsll": {
+              "_text": "0.00"
+            },
+            "IssRetido": {
+              "_text": "2"
+            },
+            "OutrasRetencoes": {
+              "_text": "0.00"
+            },
+            "BaseCalculo": {
+              "_text": "950.00"
+            },
+            "ValorLiquidoNfse": {
+              "_text": "950.00"
+            },
+            "DescontoIncondicionado": {
+              "_text": "0.00"
+            },
+            "DescontoCondicionado": {
+              "_text": "0.00"
+            }
+          },
+          "ItemListaServico": {
+            "_text": "17.19"
+          },
+          "CodigoTributacaoMunicipio": {
+            "_text": "171900188"
+          },
+          "Discriminacao": {
+            "_text": "HONORÁRIOS DE SERVIÇOS CONTÁBEIS ANDRÉA ARANTES CARNEIRO DE CASTRO CRC N: 057896/O-6 - CPF N: 639.223.556-68"
+          },
+          "CodigoMunicipio": {
+            "_text": "3106200"
+          }
+        },
+        "PrestadorServico": {
+          "IdentificacaoPrestador": {
+            "Cnpj": {
+              "_text": "11009961000183"
+            },
+            "InscricaoMunicipal": {
+              "_text": "02436070010"
+            }
+          },
+          "RazaoSocial": {
+            "_text": "ANDREA ARANTES CONTABILIDADE LTDA EPP"
+          },
+          "NomeFantasia": {
+            "_text": "ANDREA ARANTES CONTABILIDADE LTDA - EPP"
+          },
+          "Endereco": {
+            "Endereco": {
+              "_text": "RUA PROFESSOR MERCEDO MOREIRA"
+            },
+            "Numero": {
+              "_text": "404"
+            },
+            "Bairro": {
+              "_text": "Itapoã"
+            },
+            "CodigoMunicipio": {
+              "_text": "3106200"
+            },
+            "Uf": {
+              "_text": "MG"
+            },
+            "Cep": {
+              "_text": "31710340"
+            }
+          },
+          "Contato": {
+            "Email": {
+              "_text": "nfstock@nfstock.com.br"
+            }
+          }
+        },
+        "TomadorServico": {
+          "IdentificacaoTomador": {
+            "CpfCnpj": {
+              "Cnpj": {
+                "_text": "15403757000101"
+              }
+            }
+          },
+          "RazaoSocial": {
+            "_text": "HF CORRETAGEM DE VEICULOS LTDA - EPP"
+          },
+          "Endereco": {
+            "Endereco": {
+              "_text": "Rua RUA SILVEIRA"
+            },
+            "Numero": {
+              "_text": "544"
+            },
+            "Bairro": {
+              "_text": "GRACA"
+            },
+            "CodigoMunicipio": {
+              "_text": "3106200"
+            },
+            "Uf": {
+              "_text": "MG"
+            },
+            "Cep": {
+              "_text": "31140000"
+            }
+          },
+          "Contato": {
+            "Telefone": {
+              "_text": "3125153774"
+            }
+          }
+        },
+        "OrgaoGerador": {
+          "CodigoMunicipio": {
+            "_text": "3106200"
+          },
+          "Uf": {
+            "_text": "MG"
+          }
+        }
+      },
+      "Signature": {
+        "_attributes": {
+          "xmlns": "http://www.w3.org/2000/09/xmldsig#",
+          "Id": "NfseAssSMF_nfse"
+        },
+        "SignedInfo": {
+          "CanonicalizationMethod": {
+            "_attributes": {
+              "Algorithm": "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+            }
+          },
+          "SignatureMethod": {
+            "_attributes": {
+              "Algorithm": "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
+            }
+          },
+          "Reference": {
+            "_attributes": {
+              "URI": "#nfse"
+            },
+            "Transforms": {
+              "Transform": [
+                {
+                  "_attributes": {
+                    "Algorithm": "http://www.w3.org/2000/09/xmldsig#enveloped-signature"
+                  }
+                },
+                {
+                  "_attributes": {
+                    "Algorithm": "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+                  }
+                }
+              ]
+            },
+            "DigestMethod": {
+              "_attributes": {
+                "Algorithm": "http://www.w3.org/2000/09/xmldsig#sha1"
+              }
+            },
+            "DigestValue": {
+              "_text": "NWgG6bowZHrnbdkVYx2Dzlp6iWQ="
+            }
+          }
+        },
+        "SignatureValue": {
+          "_text": "Bk5e9TkzhParIIp444ojFujiR9fLXgGdj1+50HpRmbZi1t4HzhY0kJk/udavYP9YYx/X/LAeBJYpfNBed3Pohuw6HfBBNi8UoU1cb4phfrtZXtK7yyHCgKTpEYYPKQo31HYlVZJ/vJ+LT+ksiKLoLbAd0SzE5F9OaHlPS0lAmwqZvBKpmSBeCiOR62wlSywAVvdQw8rbQPDbME2tzwTDy676O+87/7bqJwJ6hG6BBfkLnSR7X6QxsJ9sDPFf8vHnwlhLM8ZMvIBE7J43I6bgyOl1Ebh3uh9Jsj/3g/EPjKU7pmtMOR2wukhpieY/Aq712mq1KioNLkDbl7hHIHU6Tg=="
+        },
+        "KeyInfo": {
+          "X509Data": {
+            "X509Certificate": {
+              "_text": "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"
+            }
+          }
+        }
+      }
+    }
+  }
+}
