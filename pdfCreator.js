@@ -23,11 +23,11 @@ const printer = new PdfPrinter({
 })
 
 /**
-* @func generateNota -> função responsável por criar os pdfs, recebe um objeto com as informações da nota e chama uma função callback contendo um PDFKit.
-*   @param {Object} el -> parametro contendo o objeto com as informações da nota.
-*   @return {Promise} -> quando resolvido contém um objeto PDFKit.
+* @func generateNota função responsável por criar os pdfs, recebe um objeto com as informações.
+*   @param {Object} el parametro contendo o objeto com as informações da nota.
+*   @return {Promise} quando resolvido contém um objeto PDFKit.
 */
-var generateNota = (el) => {
+const generateNota = (el) => {
   return new Promise(resolve => {
     // formatação da data de emissão.
     let dataEmissao = formatador.format(el.emissao)
@@ -211,12 +211,12 @@ var generateNota = (el) => {
 }
 
 /**
-* @func readDir -> função responsável por ler um diretório e converter todas as notas fiscais contidas nele em pdfs.
-*   @param {String} dir -> string com o diretório a ser lido.
-*   @param {Function} progress -> função chamada a cada xml processado para indicar o andamento da converção, possui como parametro o número total de documentos a serem convertidos e o que acabou de ser convertido.
-*   @return {Promise} -> quando resolvida contém os objetos com as notas, os XMLs já foram escritos no diretório
+* @func readDir função responsável por ler um diretório e converter todas as notas fiscais contidas nele em pdfs.
+*   @param {String} dir string com o diretório a ser lido.
+*   @param {Function} progress função chamada a cada xml processado para indicar o andamento da converção, possui como parametro o número total de documentos a serem convertidos e o que acabou de ser convertido.
+*   @return {Promise} quando resolvida contém os objetos com as notas, os XMLs já foram escritos no diretório
 */
-var readDir = (dir, progress) => {
+const readDir = (dir, progress) => {
   return new Promise((resolve, reject) => {
     if (!dir.endsWith('/')) {
       dir += '/'

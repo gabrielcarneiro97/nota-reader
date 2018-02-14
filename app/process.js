@@ -3,7 +3,7 @@
 const path = require('path')
 const pdf = require(path.join(__dirname, '/../pdfCreator.js'))
 const timer = require('timers')
-const {ipcRenderer} = require('electron')
+const { ipcRenderer } = require('electron')
 
 ipcRenderer.on('message', (e, m) => {
   if (m.type === 'start') {

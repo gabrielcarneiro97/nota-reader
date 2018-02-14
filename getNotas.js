@@ -11,11 +11,11 @@ const listaServicos = require(path.join(__dirname, '/listaServicos.json'))
 const listaCidades = require(path.join(__dirname, '/listaCidades.json'))
 
 /**
-* @func defineRegime -> recebe um código referente ao regime tributário e retorna uma String descritiva.
-*   @param {String|Number} cod -> código do regime tributário.
-*   @return {String} -> contendo a descrição do regime.
+* @func defineRegime recebe um código referente ao regime tributário e retorna uma String descritiva.
+*   @param {String|Number} cod código do regime tributário.
+*   @return {String} contendo a descrição do regime.
 */
-var defineRegime = cod => {
+const defineRegime = cod => {
   cod = trataCod(cod)
   return (
     cod === '2' ? 'Estimativa'
@@ -26,11 +26,11 @@ var defineRegime = cod => {
 }
 
 /**
-* @func defineNatureza -> recebe um código referente a natureza da tributação e retorna uma String descritiva.
-*   @param cod -> código da natureza da tributação.
-*   @return {String} -> contendo a descrição da natureza.
+* @func defineNatureza recebe um código referente a natureza da tributação e retorna uma String descritiva.
+*   @param cod código da natureza da tributação.
+*   @return {String} contendo a descrição da natureza.
 */
-var defineNatureza = cod => {
+const defineNatureza = cod => {
   cod = trataCod(cod)
   return (
     cod === '1' ? 'Tributação no município'
@@ -41,38 +41,34 @@ var defineNatureza = cod => {
 }
 
 /**
-* @func defineServico -> recebe um código referente ao serviço, consulta um objeto contendo todos os serviços listados na LC 116/2003 e retorna uma String com a descrição.
-*   @param {String|Number} cod -> código do serviço.
-*   @return {String} -> contendo a descrição do serviço.
+* @func defineServico recebe um código referente ao serviço, consulta um objeto contendo todos os serviços listados na LC 116/2003 e retorna uma String com a descrição.
+*   @param {String|Number} cod código do serviço.
+*   @return {String} contendo a descrição do serviço.
 */
-var defineServico = cod => listaServicos[trataCod(cod)]
+const defineServico = cod => listaServicos[trataCod(cod)]
 
 /**
-* @func defineCidade -> recebe um código IBGE referente a cidade, consulta um objeto com todas as cidades e códigos listados e retorna uma String com o nome da cidade referente.
-*   @param {String|Number} cod -> código IBGE da cidade.
-*   @return {String} -> contendo o nome da cidade.
+* @func defineCidade recebe um código IBGE referente a cidade, consulta um objeto com todas as cidades e códigos listados e retorna uma String com o nome da cidade referente.
+*   @param {String|Number} cod código IBGE da cidade.
+*   @return {String}  contendo o nome da cidade.
 */
-var defineCidade = cod => listaCidades[trataCod(cod)]
+const defineCidade = cod => listaCidades[trataCod(cod)]
 
 /**
-* @func trataCod -> função responsável por tratar os códigos recebidos nas funções de definição.
-*   @param {String|Number} cod -> coverte o código para uma String, se ele for undef ou null, retorna 0
-*   @return {String} -> contendo cod tratado.
+* @func trataCod função responsável por tratar os códigos recebidos nas funções de definição.
+*   @param {String|Number} cod contém o código a ser tratado.
+*   @return {String} retorna o código como String, se ele for undef ou null, retorna 0.
 */
-var trataCod = cod => (cod |= 0).toString()
+const trataCod = cod => (cod |= 0).toString()
 
 /**
-* @func converterXML -> recebe o NFS-e em XML e o converte em um objeto.
-*   @param {String} el -> XML contendo a nota.
-*   @return {Promise} -> retorna uma Promise, quando resolvida contém o objeto com as informações da nota.
+* @func converterXML recebe o NFS-e em XML e o converte em um objeto.
+*   @param {String} el XML contendo a nota.
+*   @return {Promise} retorna uma Promise, quando resolvida contém o objeto com as informações da nota.
 */
-var converterXML = (data) => {
+const converterXML = (data) => {
   return new Promise((resolve, reject) => {
     let notaObj = conversor(data, {compact: true})
-
-    let tipo = notaObj.CompNfse['_attributes'].xmlns
-
-    console.log(tipo)
 
     // testa se o XML recebido contém uma nota.
     if (notaObj.CompNfse) {
@@ -179,18 +175,18 @@ var converterXML = (data) => {
 }
 
 /**
-* @func isXml -> testa se o nome do arquivo é referente a um xml.
-*   @param filename -> nome do arquivo.
-*   @return {Boolean} -> true se o nome do arquivo terminar com .xml.
+* @func isXml testa se o nome do arquivo é referente a um xml.
+*   @param filename nome do arquivo.
+*   @return {Boolean} true se o nome do arquivo terminar com .xml.
 */
-var isXml = filename => filename.endsWith('.xml')
+const isXml = filename => filename.endsWith('.xml')
 
 /**
-* @func readDir -> lê um diretório e converte todos os arquivos .xml no diretório em objetos.
-*   @param {String} dirname -> é o nome do diretório.
-*   @return {Promise} -> Retorna uma promise, quando resolvida contém um {Array} com os objetos das notas
+* @func readDir lê um diretório e converte todos os arquivos .xml no diretório em objetos.
+*   @param {String} dirname é o nome do diretório.
+*   @return {Promise} Retorna uma promise, quando resolvida contém um {Array} com os objetos das notas
 */
-var readDir = (dirname) => {
+const readDir = (dirname) => {
   return new Promise((resolve, reject) => {
     fs.readdir(dirname, (err, files) => {
       if (err) {
