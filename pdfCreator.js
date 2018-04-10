@@ -6,6 +6,7 @@ const PdfPrinter = require('pdfmake')
 const fs = require('fs')
 const R$ = require(path.join(__dirname, '/assets.js')).R$
 
+// Intl responsável por formatar as datas
 const formatador = new Intl.DateTimeFormat({
   timeZone: 'America/Sao_Paulo',
   month: '2-digit',
@@ -13,6 +14,7 @@ const formatador = new Intl.DateTimeFormat({
   year: 'numeric'
 })
 
+// PdfPrinter, definindo a fonte como Roboto
 const printer = new PdfPrinter({
   Roboto: {
     normal: path.join(__dirname, '/fonts/Roboto-Regular.ttf'),

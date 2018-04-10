@@ -79,8 +79,6 @@ const converterXML = (data) => {
       let cancel = notaObj.CompNfse.NfseCancelamento ? notaObj.CompNfse.NfseCancelamento : false
       let sub = cancel && notaObj.CompNfse.NfseSubstituicao ? notaObj.CompNfse.NfseSubstituicao.SubstituicaoNfse.NfseSubstituidora['_text'] : ''
 
-      console.log(notaObj)
-
       let nota = {
         cancelada: {
           is: cancel,
