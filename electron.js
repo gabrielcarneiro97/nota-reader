@@ -45,7 +45,6 @@ function electronMain() {
     );
 
     // win.webContents.openDevTools({ detach: true });
-
     // backgroundWin.webContents.openDevTools({ detach: true });
 
     win.on('closed', () => {
