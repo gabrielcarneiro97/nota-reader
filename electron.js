@@ -1,61 +1,76 @@
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const url = require('url');
 
-const { app, BrowserWindow, ipcMain } = require('electron')
-const path = require('path')
-const url = require('url')
+const { version } = require(path.join(__dirname, '/package.json')); // eslint-disable-line
 
-const elt = () => {
-  let win
-  let backgroundWin
+function electronMain() {
+  let win;
+  let backgroundWin;
   app.on('ready', () => {
     win = new BrowserWindow({
       width: 300,
-      height: 250,
+      height: 300,
       resizable: false,
       backgroundColor: '#e0e0e0',
-      autoHideMenuBar: true
-    })
+      autoHideMenuBar: true,
+      webPreferences: {
+        nodeIntegration: true,
+      },
+    });
 
-    backgroundWin = new BrowserWindow({ show: false })
+    win.setTitle(`NFS-e (BH) ${version}`);
 
-    win.loadURL(url.format({
-      pathname: path.join(__dirname, 'app/index.html'),
-      protocol: 'file:',
-      slashes: true
-    }))
+    backgroundWin = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: true,
+      },
+    });
 
-    backgroundWin.loadURL(url.format({
-      pathname: path.join(__dirname, 'app/process.html'),
-      protocol: 'file:',
-      slashes: true
-    }))
+    win.loadURL(
+      url.format({
+        pathname: path.join(__dirname, 'app/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      }),
+    );
 
-    // win.webContents.openDevTools({detach: true})
+    backgroundWin.loadURL(
+      url.format({
+        pathname: path.join(__dirname, 'app/process.html'),
+        protocol: 'file:',
+        slashes: true,
+      }),
+    );
 
-    // backgroundWin.webContents.openDevTools({ detach: true })
+    // win.webContents.openDevTools({ detach: true });
+
+    // backgroundWin.webContents.openDevTools({ detach: true });
 
     win.on('closed', () => {
-      win = null
-      backgroundWin.destroy()
-    })
+      win = null;
+      backgroundWin.destroy();
+    });
 
     backgroundWin.on('closed', () => {
-      backgroundWin = null
-    })
+      backgroundWin = null;
+    });
 
     ipcMain.on('toUi', (e, m) => {
-      win.webContents.send('message', m)
-    })
+      win.webContents.send('message', m);
+    });
 
     ipcMain.on('toProcessor', (e, m) => {
-      backgroundWin.webContents.send('message', m)
-    })
-  })
+      backgroundWin.webContents.send('message', m);
+    });
+  });
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-      app.quit()
+      app.quit();
     }
-  })
+  });
 }
 
-module.exports = elt
+module.exports = electronMain;

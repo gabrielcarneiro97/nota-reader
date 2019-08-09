@@ -1,31 +1,29 @@
-'use strict'
+const path = require('path');
+const timer = require('timers');
+const { ipcRenderer } = require('electron');
 
-const path = require('path')
-const pdf = require(path.join(__dirname, '/../pdfCreator.js'))
-const timer = require('timers')
-const { ipcRenderer } = require('electron')
+const pdf = require(path.join(__dirname, '/../pdfCreator.js')); // eslint-disable-line
 
-ipcRenderer.on('message', (e, m) => {
+ipcRenderer.on('message', async (e, m) => {
   if (m.type === 'start') {
-    let path = m.data
+    const folder = m.data;
 
-    ipcRenderer.send('toUi', {type: 'start'})
+    ipcRenderer.send('toUi', { type: 'start' });
+    try {
+      const pdfs = await pdf.readDir(folder, (status) => {
+        const percent = status.now / status.total;
+        ipcRenderer.send('toUi', { type: 'process', data: percent });
+      });
 
-    pdf.readDir(path, status => {
-      let percent = status.now / status.total
-      console.log(percent)
-
-      ipcRenderer.send('toUi', {type: 'process', data: percent})
-    }).then(done => {
-      if (done) {
+      if (pdfs) {
         timer.setTimeout(() => {
-          ipcRenderer.send('toUi', { type: 'end' })
-        }, 1000)
+          ipcRenderer.send('toUi', { type: 'end' });
+        }, 1000);
       } else {
-        ipcRenderer.send('toUi', { type: 'null' })
+        ipcRenderer.send('toUi', { type: 'null' });
       }
-    }).catch(err => {
-      console.error(err)
-    })
+    } catch (err) {
+      throw err;
+    }
   }
-})
+});

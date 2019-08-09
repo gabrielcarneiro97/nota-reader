@@ -1,234 +1,294 @@
-'use strict'
-
-const path = require('path')
-const fs = require('fs')
-const conversor = require('xml-js').xml2js
+const path = require('path');
+const fs = require('fs');
+const conversor = require('xml-js').xml2js;
 
 // recupera a lista de serviços armazenada em um JSON
-const listaServicos = require(path.join(__dirname, '/listaServicos.json'))
+const listaServicos = require(path.join(__dirname, '/listaServicos.json')); // eslint-disable-line
 
 // recupera a lista de todas as cidades do Brasil armazenadas em um JSON
-const listaCidades = require(path.join(__dirname, '/listaCidades.json'))
+const listaCidades = require(path.join(__dirname, '/listaCidades.json')); // eslint-disable-line
+
+const listaCTISS = require(path.join(__dirname, '/ctiss.json')); // eslint-disable-line
+
+const fsPromises = fs.promises;
+const txt = (obj, ret) => {
+  if (ret === undefined) ret = ''; // eslint-disable-line
+  return (obj ? obj._text : ret); // eslint-disable-line
+};
 
 /**
-* @func defineRegime recebe um código referente ao regime tributário e retorna uma String descritiva.
-*   @param {String|Number} cod código do regime tributário.
-*   @return {String} contendo a descrição do regime.
-*/
-const defineRegime = cod => {
-  cod = trataCod(cod)
-  return (
-    cod === '2' ? 'Estimativa'
-    : cod === '3' ? 'Sociedade de Profissionais'
-    : cod === '4' ? 'Cooperativa'
-    : cod === '5' ? 'MEI do Simples Nacional'
-    : cod === '6' ? 'ME ou EPP do Simples Nacional' : '')
+ * @func trataCod função responsável por tratar os códigos recebidos nas funções de definição.
+ *   @param {String|Number} cod contém o código a ser tratado.
+ *   @return {String} retorna o código como String, se ele for undef ou null, retorna 0.
+ */
+function trataCod(cod) {
+  return (cod || 0).toString();
 }
 
 /**
-* @func defineNatureza recebe um código referente a natureza da tributação e retorna uma String descritiva.
-*   @param cod código da natureza da tributação.
-*   @return {String} contendo a descrição da natureza.
-*/
-const defineNatureza = cod => {
-  cod = trataCod(cod)
-  return (
-    cod === '1' ? 'Tributação no município'
-    : cod === '2' ? 'Tributação fora do município'
-    : cod === '3' ? 'Isenção'
-    : cod === '4' ? 'Imune'
-    : cod === '5' ? 'Exigibilidade suspensa por decisão judicial' : '')
+ * @func defineRegime recebe um código referente
+ *  ao regime tributário e retorna uma String descritiva.
+ *   @param {String|Number} cod código do regime tributário.
+ *   @return {String} contendo a descrição do regime.
+ */
+function defineRegime(codParm) {
+  const cod = trataCod(codParm);
+  return {
+    2: 'Estimativa',
+    3: 'Sociedade de Profissionais',
+    4: 'Cooperativa',
+    5: 'MEI do Simples Nacional',
+    6: 'ME ou EPP do Simples Nacional',
+  }[cod] || '';
 }
 
 /**
-* @func defineServico recebe um código referente ao serviço, consulta um objeto contendo todos os serviços listados na LC 116/2003 e retorna uma String com a descrição.
-*   @param {String|Number} cod código do serviço.
-*   @return {String} contendo a descrição do serviço.
-*/
-const defineServico = cod => listaServicos[trataCod(cod)]
+ * @func defineNatureza recebe um código referente a
+ *  natureza da tributação e retorna uma String descritiva.
+ *   @param cod código da natureza da tributação.
+ *   @return {String} contendo a descrição da natureza.
+ */
+function defineNatureza(codParm) {
+  const cod = trataCod(codParm);
+  return {
+    1: 'Tributação no município',
+    2: 'Tributação fora do município',
+    3: 'Isenção',
+    4: 'Imune',
+    5: 'Exigibilidade suspensa por decisão judicial',
+  }[cod] || '';
+}
 
 /**
-* @func defineCidade recebe um código IBGE referente a cidade, consulta um objeto com todas as cidades e códigos listados e retorna uma String com o nome da cidade referente.
-*   @param {String|Number} cod código IBGE da cidade.
-*   @return {String}  contendo o nome da cidade.
-*/
-const defineCidade = cod => listaCidades[trataCod(cod)]
+ * @func defineServico recebe um código referente ao serviço,
+ *  consulta um objeto contendo todos os serviços listados na
+ *  LC 116/2003 e retorna uma String com a descrição.
+ *   @param {String|Number} cod código do serviço.
+ *   @return {String} contendo a descrição do serviço.
+ */
+const defineServico = cod => listaServicos[trataCod(cod)];
 
 /**
-* @func trataCod função responsável por tratar os códigos recebidos nas funções de definição.
-*   @param {String|Number} cod contém o código a ser tratado.
-*   @return {String} retorna o código como String, se ele for undef ou null, retorna 0.
-*/
-const trataCod = cod => (cod |= 0).toString()
+ * @func defineCidade recebe um código IBGE referente a cidade,
+ *  consulta um objeto com todas as cidades e códigos listados
+ *  e retorna uma String com o nome da cidade referente.
+ *   @param {String|Number} cod código IBGE da cidade.
+ *   @return {String}  contendo o nome da cidade.
+ */
+const defineCidade = cod => listaCidades[trataCod(cod)];
+
+const defineCTISS = cod => listaCTISS[trataCod(cod)];
 
 /**
-* @func converterXML recebe o NFS-e em XML e o converte em um objeto.
-*   @param {String} el XML contendo a nota.
-*   @return {Promise} retorna uma Promise, quando resolvida contém o objeto com as informações da nota.
-*/
-const converterXML = (data) => {
-  return new Promise((resolve, reject) => {
-    let notaObj = conversor(data, {compact: true})
+ * @func converterXML recebe o NFS-e em XML e o converte em um objeto.
+ *   @param {String} el XML contendo a nota.
+ *   @return {Promise} retorna uma Promise, quando
+ *    resolvida contém o objeto com as informações da nota.
+ */
+async function converterXML(data) {
+  const notaObj = conversor(data, { compact: true });
 
-    // testa se o XML recebido contém uma nota.
-    if (notaObj.CompNfse) {
-      // informações gerais da nota.
-      let info = notaObj.CompNfse.Nfse.InfNfse
+  const { CompNfse } = notaObj;
 
-      // informações sobre o cancelamento da nota.
-      let cancel = notaObj.CompNfse.NfseCancelamento ? notaObj.CompNfse.NfseCancelamento : false
-      let sub = cancel && notaObj.CompNfse.NfseSubstituicao ? notaObj.CompNfse.NfseSubstituicao.SubstituicaoNfse.NfseSubstituidora['_text'] : ''
+  // testa se o XML recebido contém uma nota.
+  if (!CompNfse) throw new Error('XML invalido!');
 
-      let nota = {
-        cancelada: {
-          is: cancel,
-          sub: sub,
-          data: cancel ? (cancel.Confirmacao.DataHora ? new Date(cancel.Confirmacao.DataHora['_text']) : cancel.Confirmacao.DataHoraCancelamento ? new Date(cancel.Confirmacao.DataHoraCancelamento['_text']) : null) : false
-        },
-        num: info.Numero['_text'],
-        codVer: info.CodigoVerificacao['_text'],
-        emissao: new Date(info.DataEmissao['_text']),
-        comp: new Date(info.Competencia['_text']),
-        desc: info.Servico.Discriminacao['_text'].replace(/\|/g, '\n'),
-        simples: info.OptanteSimplesNacional ? info.OptanteSimplesNacional['_text'] : '2',
-        natureza: {
-          desc: info.NaturezaOperacao ? defineNatureza(info.NaturezaOperacao['_text']) : '',
-          cod: info.NaturezaOperacao['_text'] || 0
-        },
-        regimeEspecial: {
-          desc: info.RegimeEspecialTributacao ? defineRegime(info.RegimeEspecialTributacao['_text']) : info.OptanteSimplesNacional['_text'] === '1' ? 'ME ou EPP do Simples Nacional' : '',
-          cod: info.RegimeEspecialTributacao ? info.RegimeEspecialTributacao['_text'] : 0
-        },
-        subitem: {
-          desc: info.Servico.ItemListaServico ? defineServico(info.Servico.ItemListaServico['_text']) : '',
-          cod: info.Servico.ItemListaServico ? info.Servico.ItemListaServico['_text'] : 0
-        },
-        valores: {
-          valor: parseFloat(info.Servico.Valores.ValorServicos['_text']),
-          valorLiquido: parseFloat(info.Servico.Valores.ValorLiquidoNfse['_text']),
-          baseCalc: parseFloat(info.Servico.Valores.BaseCalculo['_text']),
-          deducao: info.Servico.Valores.ValorDeducoes ? parseFloat(info.Servico.Valores.ValorDeducoes['_text']) : 0,
-          desconto: info.Servico.Valores.DescontoCondicionado ? parseFloat(info.Servico.Valores.DescontoCondicionado['_text']) : 0,
-          incondicionado: info.Servico.Valores.DescontoIncondicionado ? parseFloat(info.Servico.Valores.DescontoIncondicionado['_text']) : 0,
-          iss: {
-            valor: info.Servico.Valores.ValorIss ? parseFloat(info.Servico.Valores.ValorIss['_text']) : 0,
-            aliquota: info.Servico.Valores.Aliquota ? parseFloat(info.Servico.Valores.Aliquota['_text']) : 0
-          },
-          retencoes: {
-            pis: info.Servico.Valores.ValorPis ? parseFloat(info.Servico.Valores.ValorPis['_text']) : 0,
-            cofins: info.Servico.Valores.ValorCofins ? parseFloat(info.Servico.Valores.ValorCofins['_text']) : 0,
-            csll: info.Servico.Valores.ValorCsll ? parseFloat(info.Servico.Valores.ValorCsll['_text']) : 0,
-            inss: info.Servico.Valores.ValorInss ? parseFloat(info.Servico.Valores.ValorInss['_text']) : 0,
-            ir: info.Servico.Valores.ValorIr ? parseFloat(info.Servico.Valores.ValorIr['_text']) : 0,
-            iss: info.Servico.Valores.ValorIssRetido ? parseFloat(info.Servico.Valores.ValorIssRetido['_text']) : 0,
-            outras: info.Servico.Valores.OutrasRetencoes ? parseFloat(info.Servico.Valores.OutrasRetencoes['_text']) : 0
-          }
-        },
-        prestador: {
-          nome: info.PrestadorServico.RazaoSocial['_text'],
-          cnpj: info.PrestadorServico.IdentificacaoPrestador.Cnpj['_text'],
-          im: info.PrestadorServico.IdentificacaoPrestador.InscricaoMunicipal['_text'],
-          endereco: {
-            logradouro: info.PrestadorServico.Endereco.Endereco['_text'],
-            num: info.PrestadorServico.Endereco.Numero['_text'],
-            complemento: info.PrestadorServico.Endereco.Complemento ? info.PrestadorServico.Endereco.Complemento['_text'] : '',
-            bairro: info.PrestadorServico.Endereco.Bairro['_text'],
-            codigoMun: info.PrestadorServico.Endereco.CodigoMunicipio['_text'],
-            cidade: defineCidade(info.PrestadorServico.Endereco.CodigoMunicipio['_text']),
-            estado: info.PrestadorServico.Endereco.Uf['_text'],
-            cep: info.PrestadorServico.Endereco.Cep['_text']
-          },
-          contato: info.PrestadorServico.Contato ? {
-            tel: info.PrestadorServico.Contato.Telefone ? info.PrestadorServico.Contato.Telefone['_text'] : '',
-            email: info.PrestadorServico.Contato.Email ? info.PrestadorServico.Contato.Email['_text'] : ''
-          } : {}
-        },
-        tomador: {
-          nome: info.TomadorServico.RazaoSocial['_text'],
-          cnpj: info.TomadorServico.IdentificacaoTomador.CpfCnpj.Cnpj ? info.TomadorServico.IdentificacaoTomador.CpfCnpj.Cnpj['_text'] : '',
-          cpf: info.TomadorServico.IdentificacaoTomador.CpfCnpj.Cpf ? info.TomadorServico.IdentificacaoTomador.CpfCnpj.Cpf['_text'] : '',
-          im: info.TomadorServico.IdentificacaoTomador.InscricaoMunicipal ? info.TomadorServico.IdentificacaoTomador.InscricaoMunicipal['_text'] : '',
-          endereco: {
-            logradouro: info.TomadorServico.Endereco.Endereco['_text'],
-            num: info.TomadorServico.Endereco.Numero['_text'],
-            complemento: info.TomadorServico.Endereco.Complemento ? info.TomadorServico.Endereco.Complemento['_text'] : '',
-            bairro: info.TomadorServico.Endereco.Bairro['_text'],
-            codigoMun: info.TomadorServico.Endereco.CodigoMunicipio['_text'],
-            cidade: defineCidade(info.PrestadorServico.Endereco.CodigoMunicipio['_text']),
-            estado: info.TomadorServico.Endereco.Uf['_text'],
-            cep: info.TomadorServico.Endereco.Cep['_text']
-          },
-          contato: info.TomadorServico.Contato ? {
-            tel: info.TomadorServico.Contato.Telefone ? info.TomadorServico.Contato.Telefone['_text'] : '',
-            email: info.TomadorServico.Contato.Email ? info.TomadorServico.Contato.Email['_text'] : ''
-          } : {}
+  // informações gerais da nota.
+  const { InfNfse } = CompNfse.Nfse;
+
+  const { NfseSubstituicao, NfseCancelamento } = CompNfse;
+
+  const sub = CompNfse.NfseSubstituicao ? txt(NfseSubstituicao.SubstituicaoNfse.NfseSubstituidora) : '';
+
+  const defCancelada = () => {
+    if (!NfseCancelamento) return null;
+
+    const { Confirmacao } = NfseCancelamento;
+    const { DataHora, DataHoraCancelamento } = Confirmacao;
+
+    const dataHora = DataHora || DataHoraCancelamento;
+
+    const obj = {
+      is: NfseCancelamento,
+      sub,
+      data: new Date(txt(dataHora)),
+    };
+
+    return obj;
+  };
+
+  const {
+    Numero,
+    CodigoVerificacao,
+    DataEmissao,
+    Competencia,
+    OptanteSimplesNacional,
+    Servico,
+    NaturezaOperacao,
+    RegimeEspecialTributacao,
+    PrestadorServico,
+    TomadorServico,
+  } = InfNfse;
+
+  const {
+    IdentificacaoTomador,
+  } = TomadorServico;
+
+  const {
+    IdentificacaoPrestador,
+  } = PrestadorServico;
+
+
+  const {
+    Discriminacao,
+    ItemListaServico,
+    CodigoTributacaoMunicipio,
+    Valores,
+  } = Servico;
+
+  const {
+    ValorServicos,
+    ValorLiquidoNfse,
+    BaseCalculo,
+    ValorDeducoes,
+    DescontoCondicionado,
+    DescontoIncondicionado,
+    ValorIss,
+    Aliquota,
+    ValorPis,
+    ValorCofins,
+    ValorCsll,
+    ValorInss,
+    ValorIr,
+    ValorIssRetido,
+    OutrasRetencoes,
+  } = Valores;
+
+  const nota = {
+    cancelada: defCancelada(),
+    num: txt(Numero),
+    codVer: txt(CodigoVerificacao),
+    emissao: new Date(txt(DataEmissao)),
+    comp: new Date(txt(Competencia)),
+    desc: txt(Discriminacao).replace(/\|/g, '\n'),
+    simples: txt(OptanteSimplesNacional, '2'),
+    natureza: {
+      desc: NaturezaOperacao ? defineNatureza(txt(NaturezaOperacao)) : '',
+      cod: txt(NaturezaOperacao, 0),
+    },
+    regimeEspecial: {
+      desc: defineRegime(txt(RegimeEspecialTributacao)),
+      cod: txt(RegimeEspecialTributacao),
+    },
+    subitem: {
+      desc: defineServico(txt(ItemListaServico)),
+      cod: txt(ItemListaServico),
+    },
+    ctiss: {
+      desc: defineCTISS(txt(CodigoTributacaoMunicipio)),
+      cod: txt(CodigoTributacaoMunicipio),
+    },
+    valores: {
+      valor: parseFloat(txt(ValorServicos, 0)),
+      valorLiquido: parseFloat(txt(ValorLiquidoNfse, 0)),
+      baseCalc: parseFloat(txt(BaseCalculo, 0)),
+      deducao: parseFloat(txt(ValorDeducoes, 0)),
+      desconto: parseFloat(txt(DescontoCondicionado, 0)),
+      incondicionado: parseFloat(txt(DescontoIncondicionado, 0)),
+      iss: {
+        valor: parseFloat(txt(ValorIss, 0)),
+        aliquota: parseFloat(txt(Aliquota, 0)),
+      },
+      retencoes: {
+        pis: parseFloat(txt(ValorPis, 0)),
+        cofins: parseFloat(txt(ValorCofins, 0)),
+        csll: parseFloat(txt(ValorCsll, 0)),
+        inss: parseFloat(txt(ValorInss, 0)),
+        ir: parseFloat(txt(ValorIr, 0)),
+        iss: parseFloat(txt(ValorIssRetido, 0)),
+        outras: parseFloat(txt(OutrasRetencoes, 0)),
+      },
+    },
+    prestador: {
+      nome: txt(PrestadorServico.RazaoSocial),
+      cnpj: txt(IdentificacaoPrestador.Cnpj),
+      im: txt(IdentificacaoPrestador.InscricaoMunicipal),
+      endereco: {
+        logradouro: txt(PrestadorServico.Endereco.Endereco),
+        num: txt(PrestadorServico.Endereco.Numero),
+        complemento: txt(PrestadorServico.Endereco.Complemento),
+        bairro: txt(PrestadorServico.Endereco.Bairro),
+        codigoMun: txt(PrestadorServico.Endereco.CodigoMunicipio),
+        cidade: defineCidade(txt(PrestadorServico.Endereco.CodigoMunicipio)),
+        estado: txt(InfNfse.PrestadorServico.Endereco.Uf),
+        cep: txt(InfNfse.PrestadorServico.Endereco.Cep),
+      },
+      contato: PrestadorServico.Contato
+        ? {
+          tel: txt(PrestadorServico.Contato.Telefone),
+          email: txt(PrestadorServico.Contato.Email),
         }
-      }
+        : {},
+    },
+    tomador: {
+      nome: txt(TomadorServico.RazaoSocial),
+      cnpj: txt(IdentificacaoTomador.CpfCnpj.Cnpj),
+      cpf: txt(IdentificacaoTomador.CpfCnpj.Cpf),
+      im: txt(IdentificacaoTomador.InscricaoMunicipal),
+      endereco: {
+        logradouro: txt(TomadorServico.Endereco.Endereco),
+        num: txt(TomadorServico.Endereco.Numero),
+        complemento: txt(TomadorServico.Endereco.Complemento),
+        bairro: txt(TomadorServico.Endereco.Bairro),
+        codigoMun: txt(TomadorServico.Endereco.CodigoMunicipio),
+        cidade: defineCidade(txt(TomadorServico.Endereco.CodigoMunicipio)),
+        estado: txt(TomadorServico.Endereco.Uf),
+        cep: txt(TomadorServico.Endereco.Cep),
+      },
+      contato: TomadorServico.Contato
+        ? {
+          tel: txt(TomadorServico.Contato.Telefone),
+          email: txt(TomadorServico.Contato.Email),
+        }
+        : {},
+    },
+  };
 
-      resolve(nota)
-    } else {
-      reject(new Error('XML invalido!'))
-    }
-  })
+  return nota;
 }
 
 /**
-* @func isXml testa se o nome do arquivo é referente a um xml.
-*   @param filename nome do arquivo.
-*   @return {Boolean} true se o nome do arquivo terminar com .xml.
-*/
-const isXml = filename => filename.endsWith('.xml')
+ * @func isXml testa se o nome do arquivo é referente a um xml.
+ *   @param filename nome do arquivo.
+ *   @return {Boolean} true se o nome do arquivo terminar com .xml.
+ */
+const isXml = filename => filename.endsWith('.xml');
 
 /**
-* @func readDir lê um diretório e converte todos os arquivos .xml no diretório em objetos.
-*   @param {String} dirname é o nome do diretório.
-*   @return {Promise} Retorna uma promise, quando resolvida contém um {Array} com os objetos das notas
-*/
-const readDir = (dirname) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(dirname, (err, files) => {
-      if (err) {
-        throw err
-      }
+ * @func readDir lê um diretório e converte todos os arquivos .xml no diretório em objetos.
+ *   @param {String} dirname é o nome do diretório.
+ *   @return {Promise} Retorna uma promise, quando
+ *    resolvida contém um {Array} com os objetos das notas
+ */
 
-      if (!dirname.endsWith('/')) {
-        dirname += '/'
-      }
+async function readDir(dirname) {
+  try {
+    const files = (await fsPromises.readdir(dirname)).filter(isXml);
 
-      files = files.filter(isXml)
+    if (files.length === 0) throw new Error('Sem arquivos encontrados no diretório');
 
-      let arr = []
-
-      // confere se existem arquivos na array files.
-      if (files.length === 0) {
-        reject(new Error('Sem arquivos encontrados no diretório'))
-      } else {
-        let promises = []
-        files.forEach((filename, id) => {
-          if (filename.endsWith('.xml')) {
-            let p = new Promise(resolve => {
-              fs.readFile(dirname + filename, 'utf8', (err, data) => {
-                if (err) {
-                  console.error(err)
-                }
-                converterXML(data).then(nota => {
-                  arr.push(nota)
-                  resolve(nota)
-                })
-              })
-            })
-            promises.push(p)
-          }
-        })
-        Promise.all(promises).then(nota => {
-          resolve(arr)
-        })
-      }
-    })
-  })
+    return Promise.all(
+      files.map(async (filename) => {
+        const file = await fsPromises.readFile(path.join(dirname, filename), 'utf-8');
+        return converterXML(file);
+      }),
+    );
+  } catch (err) {
+    throw err;
+  }
 }
 
 module.exports = {
-  converterXML: converterXML,
-  readDir: readDir
-}
+  converterXML,
+  readDir,
+};

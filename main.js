@@ -1,5 +1,4 @@
-'use strict'
-const path = require('path')
-const electronApp = require(path.join(__dirname, 'electron'))
+const path = require('path');
+const electronApp = require(path.join(__dirname, 'electron'));
 
-electronApp()
+electronApp();
