@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 
-const { version } = require(path.join(__dirname, '/package.json')); // eslint-disable-line
+const { version } = require(path.join(__dirname, '/package.json'));
 
 function electronMain() {
   let win;

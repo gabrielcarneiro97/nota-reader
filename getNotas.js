@@ -3,18 +3,20 @@ const fs = require('fs');
 const conversor = require('xml-js').xml2js;
 
 // recupera a lista de serviços armazenada em um JSON
-const listaServicos = require(path.join(__dirname, '/listaServicos.json')); // eslint-disable-line
+const listaServicos = require(path.join(__dirname, '/listaServicos.json'));
 
 // recupera a lista de todas as cidades do Brasil armazenadas em um JSON
-const listaCidades = require(path.join(__dirname, '/listaCidades.json')); // eslint-disable-line
+const listaCidades = require(path.join(__dirname, '/listaCidades.json'));
 
-const listaCTISS = require(path.join(__dirname, '/ctiss.json')); // eslint-disable-line
+const listaCTISS = require(path.join(__dirname, '/ctiss.json'));
 
 const fsPromises = fs.promises;
-const txt = (obj, ret) => {
-  if (ret === undefined) ret = ''; // eslint-disable-line
-  return (obj ? obj._text : ret); // eslint-disable-line
-};
+
+function txt(obj, ret) {
+  const txt = obj && obj._text; // eslint-disable-line
+  if (ret === undefined) return (txt || '');
+  return (txt || ret);
+}
 
 /**
  * @func trataCod função responsável por tratar os códigos recebidos nas funções de definição.
@@ -270,7 +272,6 @@ const isXml = filename => filename.endsWith('.xml');
  *   @return {Promise} Retorna uma promise, quando
  *    resolvida contém um {Array} com os objetos das notas
  */
-
 async function readDir(dirname) {
   try {
     const files = (await fsPromises.readdir(dirname)).filter(isXml);

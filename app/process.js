@@ -2,7 +2,7 @@ const path = require('path');
 const timer = require('timers');
 const { ipcRenderer } = require('electron');
 
-const pdf = require(path.join(__dirname, '/../pdfCreator.js')); // eslint-disable-line
+const pdf = require(path.join(__dirname, '/../pdfCreator.js'));
 
 ipcRenderer.on('message', async (e, m) => {
   if (m.type === 'start') {
