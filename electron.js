@@ -1,8 +1,11 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const squirrelStartup = require('electron-squirrel-startup');
 const path = require('path');
 const url = require('url');
 
 const { version } = require(path.join(__dirname, '/package.json'));
+
+if (squirrelStartup) app.quit();
 
 function electronMain() {
   let win;

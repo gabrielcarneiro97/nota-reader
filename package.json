@@ -1,6 +1,6 @@
 {
   "name": "nota_reader",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Conversor de notas",
   "main": "./main.js",
   "build": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "npx electron .",
-    "dist": "npx electron-builder",
+    "build": "node build-script.js",
     "start": "npx electron ."
   },
   "repository": {
@@ -23,13 +23,16 @@
   "homepage": "https://github.com/gabrielcarneiro97/nota-reader#readme",
   "dependencies": {
     "asar": "^2.0.1",
+    "electron": "^6.0.1",
+    "electron-packager": "^14.0.4",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-winstaller": "^4.0.0",
     "hammerjs": "^2.0.8",
     "hover.css": "^2.3.2",
     "jquery": "^3.4.1",
     "materialize-css": "^1.0.0",
     "pdfmake": "^0.1.58",
     "progressbar.js": "^1.0.1",
-    "electron": "^6.0.1",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
