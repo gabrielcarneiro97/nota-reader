@@ -60,7 +60,7 @@ const generateNota = el => new Promise((resolve) => {
     watermark: el.cancelada ? { text: 'CANCELADA', color: 'red' } : '',
     content: [
       {
-        text: 'NFS-e NOTA FISAL DE SERVIÇOS ELETRÔNICA\n',
+        text: 'NFS-e NOTA FISCAL DE SERVIÇOS ELETRÔNICA\n',
         fontSize: 10,
         alignment: 'center',
         marginBottom: 10,
