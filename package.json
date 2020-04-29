@@ -29,7 +29,7 @@
     "electron-winstaller": "^4.0.0",
     "hammerjs": "^2.0.8",
     "hover.css": "^2.3.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "materialize-css": "^1.0.0",
     "pdfmake": "^0.1.58",
     "progressbar.js": "^1.0.1",
