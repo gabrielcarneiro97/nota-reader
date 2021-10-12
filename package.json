@@ -23,7 +23,7 @@
   "homepage": "https://github.com/gabrielcarneiro97/nota-reader#readme",
   "dependencies": {
     "asar": "^2.0.1",
-    "electron": "^6.0.1",
+    "electron": "^11.5.0",
     "electron-packager": "^14.0.4",
     "electron-squirrel-startup": "^1.0.0",
     "electron-winstaller": "^4.0.0",
